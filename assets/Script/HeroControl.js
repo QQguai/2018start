@@ -12,30 +12,78 @@ cc.Class({
     extends: cc.Component,
 
     properties: {
-        // foo: {
-        //     // ATTRIBUTES:
-        //     default: null,        // The default value will be used only when the component attaching
-        //                           // to a node for the first time
-        //     type: cc.SpriteFrame, // optional, default is typeof default
-        //     serializable: true,   // optional, default is true
-        // },
-        // bar: {
-        //     get () {
-        //         return this._bar;
-        //     },
-        //     set (value) {
-        //         this._bar = value;
-        //     }
-        // },
+        speed: 1,
     },
 
     // LIFE-CYCLE CALLBACKS:
 
-    // onLoad () {},
+    onLoad () {
 
-    start () {
+        //register event
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_UP,this.eKeyUp,this);
+        cc.systemEvent.on(cc.SystemEvent.EventType.KEY_DOWN,this.eKeyDown,this);
 
+        this.walkDir = null;
+        this.animate = this.getComponent(cc.Animation);
     },
 
-    // update (dt) {},
+    onDestroy () {
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_UP,this.eKeyUP,this);
+        cc.systemEvent.off(cc.SystemEvent.EventType.KEY_DOWN,this.eKeyDown,this);
+    },
+
+    eKeyUp (event) {
+        this.walkDir = null;
+        this.animate.stop();
+    },
+
+    eKeyDown (event) {
+        
+        switch (event.keyCode) {
+            case cc.KEY.up : 
+                if(this.walkDir != event.keyCode) {
+                    this.animate.play('walkUp')
+                }
+                break;
+            case cc.KEY.down :
+                if(this.walkDir != event.keyCode) {
+                    this.animate.play('walkDown')
+                } 
+                break;
+            case cc.KEY.left : 
+                if(this.walkDir != event.keyCode) {
+                    this.animate.play('walkLeft')
+                }
+                break;
+            case cc.KEY.right : 
+                if(this.walkDir != event.keyCode) {
+                    this.animate.play('walkRight')
+                }
+                break;
+            default:
+                break;
+        }
+
+        this.walkDir = event.keyCode;
+            
+    },
+
+    update (dt) {
+        switch (this.walkDir) {
+            case cc.KEY.up:
+                this.node.y += this.speed;
+                break;
+            case cc.KEY.down:
+                this.node.y -= this.speed;
+                break;
+            case cc.KEY.left:
+                this.node.x -= this.speed;
+                break;
+            case cc.KEY.right:
+                this.node.x += this.speed;
+                break;
+            default:
+                break;
+        }
+    },
 });
